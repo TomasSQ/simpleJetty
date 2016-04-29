@@ -5,6 +5,8 @@ import java.util.ArrayList;
 
 public class UserService {
 
+	private static Long lastId = 0l;
+
 	private static List<User> users = new ArrayList<User>();
 
 	public List<User> findAll() {
@@ -36,7 +38,7 @@ public class UserService {
 	}
 
 	public User create(User newUser) {
-		newUser.setId(users.size() + 1l);
+		newUser.setId(++lastId);
 
 		users.add(newUser);
 
