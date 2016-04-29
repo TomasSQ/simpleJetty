@@ -18,21 +18,21 @@ import com.google.gson.Gson;
 @Path("/user")
 public class UserRS {
 
-	private static Map<Long, User> users = new HashMap<Long, User>();
-
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
 	public Response getAllUsers() {
-		return Response.ok(new Gson().toJson(users)).build();
+		return Response.ok(new Gson().toJson(new UserService().findAll())).build();
 	}
 
 	@GET
 	@Path("/{id}")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
 	public Response getUser(@PathParam("id") Long id) {
-		if (users.containsKey(id)) {
-			return Response.ok(new Gson().toJson(users.get(id))).build();
+		User user = new UserService().findById(id);
+
+		if (user != null) {
+			return Response.ok(new Gson().toJson(user)).build();
 		}
 
 		return Response.status(Response.Status.NOT_FOUND).build();
@@ -42,16 +42,15 @@ public class UserRS {
 	@Path("/{id}")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
 	public Response updateUser(@PathParam("id") Long id, @FormParam("user") String jsonUser) {
-		if (!users.containsKey(id)) {
+		User user = new Gson().fromJson(jsonUser, User.class);
+
+		User updatedUser = new UserService().update(id, user);
+
+		if (updatedUser == null) {
 			return Response.status(Response.Status.NOT_FOUND).build();
 		}
 
-		User user = new Gson().fromJson(jsonUser, User.class);
-		user.setId(id);
-
-		users.put(id, user);
-
-		return Response.ok(new Gson().toJson(users.get(id))).build();
+		return Response.ok(new Gson().toJson(updatedUser)).build();
 	}
 
 	@POST
@@ -59,9 +58,8 @@ public class UserRS {
 	@Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
 	public Response createUser(@FormParam("user") String jsonUser) {
 		User user = new Gson().fromJson(jsonUser, User.class);
-		user.setId(users.keySet().size() + 1l);
 
-		users.put(user.getId(), user);
+		user = new UserService().create(user);
 
 		return Response.ok(new Gson().toJson(user)).build();
 	}
@@ -70,11 +68,9 @@ public class UserRS {
 	@Path("/{id}")
 	@Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
 	public Response deleteUser(@PathParam("id") Long id) {
-		if (!users.containsKey(id)) {
+		if (!new UserService().delete(id)) {
 			return Response.status(Response.Status.NOT_FOUND).build();
 		}
-
-		users.remove(id);
 
 		return Response.ok().build();
 	}

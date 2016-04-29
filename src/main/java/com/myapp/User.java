@@ -14,4 +14,12 @@ public class User {
 	public Long getId() {
 		return id;
 	}
+
+	public User updateWith(User user) {
+		this.name = user.name;
+		this.lastName = user.lastName;
+
+		return this;
+	}
+
 }
