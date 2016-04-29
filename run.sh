@@ -1,1 +1,1 @@
-java -cp bin/classes:bin/dependency/* com.example.Main
+java -cp bin/classes:bin/dependency/* com.myapp.Main
